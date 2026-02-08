@@ -29,7 +29,7 @@ export default defineConfig({
     baseURL: 'https://www.automationexercise.com',
 
     /* Requirement: Screenshot on failure */
-    screenshot: 'only-on-failure',
+    screenshot: 'on',
 
     /* Collect trace when retrying the failed test */
     trace: 'on-first-retry',

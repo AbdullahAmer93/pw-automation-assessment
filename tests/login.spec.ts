@@ -1,23 +1,28 @@
-import { test, expect } from '@playwright/test';
-import { LoginPage } from '../pages/LoginPage';
+import { test, expect } from './fixtures';
+import * as userData from '../test-data/user.json';
 
-test('User should be able to login with valid credentials', async ({ page }) => {
-    const loginPage = new LoginPage(page);
-
-    await loginPage.navigate();
-    await loginPage.goToLoginSection();
+test.describe('Login Functionality', () => {
     
-    // Using a clear, valid test account
-    await loginPage.login('testuser_1@test.com', 'password');
+    test('User should be able to login with valid credentials', async ({ loginPage }) => {
+        const { email, password } = userData.validUser;
 
-    // BETTER REPORTING: Check if an error message appears first
-    const isErrorVisible = await loginPage.errorMessage.isVisible();
-    if (isErrorVisible) {
-        const message = await loginPage.errorMessage.textContent();
-        // This will fail the test immediately with the actual error from the UI
-        throw new Error(`Login failed with message: "${message}". Please check your credentials.`);
-    }
+        await loginPage.navigate();
+        await loginPage.goToLoginSection();
+        await loginPage.login(email, password);
 
-    // Standard assertion with a custom failure message
-    await expect(loginPage.userStatus, 'Should see "Logged in as" after successful login').toBeVisible({ timeout: 7000 });
+        // Assertions
+        await expect(loginPage.userStatus).toBeVisible();
+        await expect(loginPage.userStatus).toContainText(userData.validUser.username);
+    });
+
+    test('User should see error with invalid credentials', async ({ loginPage }) => {
+        const { email, password } = userData.invalidUser;
+
+        await loginPage.navigate();
+        await loginPage.goToLoginSection();
+        await loginPage.login(email, password);
+
+        // Assert error message is visible
+        await expect(loginPage.errorMessage).toBeVisible();
+    });
 });
